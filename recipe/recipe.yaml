@@ -16,7 +16,7 @@ source:
       - 0003-freeres-noop-with-dynamic-libstdcxx.patch
 
 build:
-  number: 0
+  number: 1
   # Upstream only builds on Linux (x86_64/aarch64): the Bazel C++ toolchain and
   # the bundled libstreamer.so are Linux/GNU specific (no macOS/Windows support).
   skip:
