@@ -1,7 +1,7 @@
 schema_version: 1
 
 context:
-  version: "0.16.0"
+  version: "0.16.1"
 
 package:
   name: runai-model-streamer
@@ -9,14 +9,14 @@ package:
 
 source:
   - url: https://github.com/run-ai/runai-model-streamer/archive/refs/tags/${{ version }}.tar.gz
-    sha256: 824c468d1829886ddcb48d1463b7cf41219105b0221b1351e44bae86862b9669
+    sha256: 859cdf12d320bec0ef8bde43d032056b79738bed4c313062a6816b002d7e6e35
     patches:
       - 0001-Build-core-libstreamer-with-conda-toolchain.patch
       - 0002-undef-major-minor-sysmacros.patch
       - 0003-freeres-noop-with-dynamic-libstdcxx.patch
 
 build:
-  number: 1
+  number: 0
   # Upstream only builds on Linux (x86_64/aarch64): the Bazel C++ toolchain and
   # the bundled libstreamer.so are Linux/GNU specific (no macOS/Windows support).
   skip:
