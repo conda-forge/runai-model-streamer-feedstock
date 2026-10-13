@@ -1,7 +1,7 @@
 schema_version: 1
 
 context:
-  version: "0.16.1"
+  version: "0.17.0"
 
 package:
   name: runai-model-streamer
@@ -9,7 +9,7 @@ package:
 
 source:
   - url: https://github.com/run-ai/runai-model-streamer/archive/refs/tags/${{ version }}.tar.gz
-    sha256: 37a7961dccabebd7f2a26be62e468256aab61c7139e0cd053779e4a914dadd0a
+    sha256: 55c64c86df87ebb6891662cb81908e4d055527231cdea9749f120fe29e75ef2e
     patches:
       - 0001-Build-core-libstreamer-with-conda-toolchain.patch
       - 0002-undef-major-minor-sysmacros.patch
