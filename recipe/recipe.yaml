@@ -9,7 +9,7 @@ package:
 
 source:
   - url: https://github.com/run-ai/runai-model-streamer/archive/refs/tags/${{ version }}.tar.gz
-    sha256: 859cdf12d320bec0ef8bde43d032056b79738bed4c313062a6816b002d7e6e35
+    sha256: 37a7961dccabebd7f2a26be62e468256aab61c7139e0cd053779e4a914dadd0a
     patches:
       - 0001-Build-core-libstreamer-with-conda-toolchain.patch
       - 0002-undef-major-minor-sysmacros.patch
