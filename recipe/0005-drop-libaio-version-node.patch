@@ -1,0 +1,46 @@
+diff --git a/cpp/streamer/streamer.ldscript b/cpp/streamer/streamer.ldscript
+index 753a5fc..4a84bcf 100644
+--- a/cpp/streamer/streamer.ldscript
++++ b/cpp/streamer/streamer.ldscript
+@@ -5,22 +5,22 @@
+ 
+ # The symbols this library exports. Used by libstreamer.so and by libstreamer-mock.so.
+ #
+-# The two names below are ELF version nodes, not product versions. A version node is a label on an
++# The name below is an ELF version node, not a product version. A version node is a label on an
+ # exported symbol. The dynamic linker uses it to tell apart two incompatible versions of one symbol.
+ #
+-# LIBAIO_0.4
+-#   Required because we link libaio statically, and libaio defines io_getevents as
+-#   io_getevents@@LIBAIO_0.4 (libaio/src/syscall.h, DEFSYMVER). Without this node, ld fails with:
++# No LIBAIO_0.4 node here. Upstream needs one because it links libaio statically, which puts
++# io_getevents@@LIBAIO_0.4 into the link and makes ld demand a node of that name. We link the shared
++# libaio.so (see third_party/aio.BUILD), which already carries that node in its own .gnu.version_d,
++# so ours would only restate it - and because each node ends in `local: *`, every symbol matches a
++# wildcard in two nodes. gold reports that as
+ #
+-#       version node not found for symbol io_getevents@@LIBAIO_0.4
++#   wildcard match appears in both version 'LIBAIO_0.4' and version 'RUNAI_FILE_STREAMER_1.0' in script
+ #
+-#   `local: *` and -Wl,--exclude-libs do not help; we tested both. The node must exist. It is empty
+-#   and marks everything local, so no libaio symbol is exported. libstreamer-mock.so does not link
+-#   libaio, so it does not use this node.
++# and the link fails, because our link options include -Wl,--fatal-warnings.
+ #
+ # RUNAI_FILE_STREAMER_1.0
+-#   Our node. It needs a name because ld does not allow an anonymous tag next to a named one. Our
+-#   symbols become runai_file_streamer_start@@RUNAI_FILE_STREAMER_1.0 instead of plain runai_file_streamer_start.
++#   Our node. Our symbols become runai_file_streamer_start@@RUNAI_FILE_STREAMER_1.0 instead of plain
++#   runai_file_streamer_start.
+ #
+ #   RUNAI_FILE_STREAMER is the agreed public ABI prefix. Finalize the versioning policy, including
+ #   its relationship to Python package versions, before the first standalone release. Native programs
+@@ -42,8 +42,6 @@
+ #
+ # The object-storage plugins are a separate contract: s3.ldscript, gcs.ldscript and azure.ldscript
+ # use anonymous scripts, export only obj_*, and do not link libaio.
+-LIBAIO_0.4 { local: *; };
+-
+ RUNAI_FILE_STREAMER_1.0 {
+     global:
+         runai_file_streamer_start;

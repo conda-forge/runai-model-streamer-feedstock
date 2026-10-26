@@ -1,7 +1,7 @@
 schema_version: 1
 
 context:
-  version: "0.16.1"
+  version: "0.17.0"
 
 package:
   name: runai-model-streamer
@@ -9,11 +9,12 @@ package:
 
 source:
   - url: https://github.com/run-ai/runai-model-streamer/archive/refs/tags/${{ version }}.tar.gz
-    sha256: 37a7961dccabebd7f2a26be62e468256aab61c7139e0cd053779e4a914dadd0a
+    sha256: 55c64c86df87ebb6891662cb81908e4d055527231cdea9749f120fe29e75ef2e
     patches:
       - 0001-Build-core-libstreamer-with-conda-toolchain.patch
-      - 0002-undef-major-minor-sysmacros.patch
       - 0003-freeres-noop-with-dynamic-libstdcxx.patch
+      - 0004-use-conda-forge-liburing-and-libaio.patch
+      - 0005-drop-libaio-version-node.patch
 
 build:
   number: 0
@@ -32,13 +33,24 @@ requirements:
   host:
     - python
     - pip
-    - setuptools
+    - setuptools >=70.1
     - wheel
+    - liburing
+    - libaio
+    # cuda-cudart-dev: cuda.h only, the CUDA driver is dlopen'd at runtime.
+    - cuda-cudart-dev
   run:
     - python
     - pytorch >=2.0.0,<3.0.0
     - numpy
     - humanize
+    - liburing
+    - libaio
+  ignore_run_exports:
+    # cuda.h is a compile-time-only dependency: libcuda.so is dlopen'd at
+    # runtime, so neither the CUDA runtime nor the driver is needed to run this.
+    from_package:
+      - cuda-cudart-dev
 
 tests:
   - python:
