@@ -14,6 +14,7 @@ source:
       - 0001-Build-core-libstreamer-with-conda-toolchain.patch
       - 0003-freeres-noop-with-dynamic-libstdcxx.patch
       - 0004-use-conda-forge-liburing-and-libaio.patch
+      - 0005-drop-libaio-version-node.patch
 
 build:
   number: 0
