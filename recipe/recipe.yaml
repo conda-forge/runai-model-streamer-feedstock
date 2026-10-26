@@ -35,7 +35,6 @@ requirements:
     - pip
     - setuptools >=70.1
     - wheel
-    # liburing/libaio: the core library links the io_uring and libaio engines.
     - liburing
     - libaio
     # cuda-cudart-dev: cuda.h only, the CUDA driver is dlopen'd at runtime.
