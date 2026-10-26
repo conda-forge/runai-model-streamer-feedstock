@@ -1,6 +1,2 @@
-# The conda-forge Linux default sysroot is CentOS 7 based, and its kernel headers are 3.10.
-# The C++ core probes the kernel for direct-I/O alignment with statx (4.11) and links against
-# liburing, whose io_uring uapi header needs __kernel_rwf_t (4.13), so that sysroot is too old.
-# 2.28 is the next conda-forge sysroot and ships 4.18 kernel headers, which have both.
 c_stdlib_version:   # [linux]
   - '2.28'          # [linux]
