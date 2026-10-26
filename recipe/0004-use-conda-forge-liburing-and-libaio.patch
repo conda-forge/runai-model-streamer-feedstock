@@ -1,0 +1,113 @@
+diff --git a/cpp/third_party/aio.BUILD b/cpp/third_party/aio.BUILD
+index 8f844b8..f168c49 100644
+--- a/cpp/third_party/aio.BUILD
++++ b/cpp/third_party/aio.BUILD
+@@ -1,41 +1,16 @@
+ # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ # SPDX-License-Identifier: Apache-2.0
+ 
+-load("@//third_party:aio.bzl", "aio_library")
+-
+ package(default_visibility = ["//visibility:public"])
+ 
+-# libaio, vendored into the image by .devcontainer/Dockerfile and linked statically by default.
+-# The fallback engine, for hosts where io_uring is unavailable. Design section 5.13.
+-
+-config_setting(
+-    name = "dynamic_link",
+-    define_values = {
+-        "USE_SYSTEM_LIBS": "1",
+-    },
+-)
+-
+-config_setting(
+-    name = "target_x86_64",
+-    constraint_values = [
+-        "@platforms//cpu:x86_64",
+-    ],
+-)
+-
+-config_setting(
+-    name = "target_aarch64",
+-    constraint_values = [
+-        "@platforms//cpu:aarch64",
+-    ],
+-)
+-
+-aio_library(name = "aio_aarch", arch = "aarch64")
+-aio_library(name = "aio_x86_64", arch = "x86_64")
+-
+-alias(
++# Upstream vendors libaio into the devcontainer and links it statically from
++# /opt. Here the repository is populated from the conda prefix instead (see
++# .bazel-deps in build.sh), so the header lives in include/ and the shared
++# object in lib/ - the same shape as upstream's USE_SYSTEM_LIBS branch, but
++# without having to know the prefix at patch time.
++cc_library(
+     name = "aio",
+-    actual = select({
+-        ":target_x86_64": ":aio_x86_64",
+-        ":target_aarch64": ":aio_aarch",
+-    }),
++    hdrs = ["include/libaio.h"],
++    includes = ["include"],
++    linkopts = ["-laio"],
+ )
+diff --git a/cpp/third_party/uring.BUILD b/cpp/third_party/uring.BUILD
+index f3c0056..416380d 100644
+--- a/cpp/third_party/uring.BUILD
++++ b/cpp/third_party/uring.BUILD
+@@ -1,41 +1,19 @@
+ # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ # SPDX-License-Identifier: Apache-2.0
+ 
+-load("@//third_party:uring.bzl", "uring_library")
+-
+ package(default_visibility = ["//visibility:public"])
+ 
+-# liburing, vendored into the image by .devcontainer/Dockerfile and linked statically by default.
+-# Design section 5.13.
+-
+-config_setting(
+-    name = "dynamic_link",
+-    define_values = {
+-        "USE_SYSTEM_LIBS": "1",
+-    },
+-)
+-
+-config_setting(
+-    name = "target_x86_64",
+-    constraint_values = [
+-        "@platforms//cpu:x86_64",
+-    ],
+-)
+-
+-config_setting(
+-    name = "target_aarch64",
+-    constraint_values = [
+-        "@platforms//cpu:aarch64",
+-    ],
+-)
+-
+-uring_library(name = "uring_aarch", arch = "aarch64")
+-uring_library(name = "uring_x86_64", arch = "x86_64")
+-
+-alias(
++# Upstream vendors liburing into the devcontainer and links it statically from
++# /opt. Here the repository is populated from the conda prefix instead (see
++# .bazel-deps in build.sh), so the headers live in include/ and the shared
++# object in lib/ - the same shape as upstream's USE_SYSTEM_LIBS branch, but
++# without having to know the prefix at patch time.
++cc_library(
+     name = "uring",
+-    actual = select({
+-        ":target_x86_64": ":uring_x86_64",
+-        ":target_aarch64": ":uring_aarch",
+-    }),
++    hdrs = glob([
++        "include/liburing.h",
++        "include/liburing/**/*.h",
++    ]),
++    includes = ["include"],
++    linkopts = ["-luring"],
+ )

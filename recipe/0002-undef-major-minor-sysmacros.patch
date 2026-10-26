@@ -1,22 +1,51 @@
-diff --git a/cpp/utils/semver/semver.h b/cpp/utils/semver/semver.h
-index 7a873a3..1fb5147 100644
---- a/cpp/utils/semver/semver.h
-+++ b/cpp/utils/semver/semver.h
-@@ -3,6 +3,17 @@
- #include <string>
- #include <ostream>
+diff --git a/cpp/utils/semver/semver.cc b/cpp/utils/semver/semver.cc
+index 8bbeb9e..3a29c41 100644
+--- a/cpp/utils/semver/semver.cc
++++ b/cpp/utils/semver/semver.cc
+@@ -12,6 +12,11 @@
  
-+// glibc < 2.28 (including the conda-forge cos7 sysroot) defines `major()` and
-+// `minor()` as macros in <sys/types.h> (pulled in transitively by <string>),
-+// which would otherwise clobber the Semver::major / Semver::minor member names
-+// declared below.
-+#ifdef major
+ #include "utils/logging/logging.h"
+ 
++// semver.h restores the major()/minor() macros of <sys/sysmacros.h> for other
++// translation units; this one names the Semver members instead.
 +#undef major
-+#endif
-+#ifdef minor
 +#undef minor
-+#endif
 +
  namespace runai::llm::streamer::utils
  {
  
+diff --git a/cpp/utils/semver/semver.h b/cpp/utils/semver/semver.h
+index a4e0244..7c06e79 100644
+--- a/cpp/utils/semver/semver.h
++++ b/cpp/utils/semver/semver.h
+@@ -8,6 +8,20 @@
+ #include <string>
+ #include <ostream>
+ 
++// glibc >= 2.28 defines `major()` and `minor()` as macros in <sys/sysmacros.h>,
++// which <string> pulls in transitively. They would clobber the Semver member
++// names below, so hide them for the declaration and restore them afterwards:
++// other translation units include <sys/sysmacros.h> on purpose to call
++// major()/minor() on a dev_t (see streamer/impl/pools/backend_pools.cc), and
++// the conda-forge cos7 sysroot only defines the macros when that header is
++// included explicitly. push_macro/pop_macro also record the undefined state of
++// older glibc, so no #ifdef guard is needed (and one must not be used: it would
++// be false after the #undef and skip the pop).
++#pragma push_macro("major")
++#pragma push_macro("minor")
++#undef major
++#undef minor
++
+ namespace runai::llm::streamer::utils
+ {
+ 
+@@ -31,6 +45,9 @@ struct Semver
+     unsigned long stoul(const std::string & str);
+ };
+ 
++#pragma pop_macro("minor")
++#pragma pop_macro("major")
++
+ std::ostream & operator<<(std::ostream &, const Semver &);
+ 
+ bool operator==(const Semver &, const Semver &);

@@ -14,6 +14,7 @@ source:
       - 0001-Build-core-libstreamer-with-conda-toolchain.patch
       - 0002-undef-major-minor-sysmacros.patch
       - 0003-freeres-noop-with-dynamic-libstdcxx.patch
+      - 0004-use-conda-forge-liburing-and-libaio.patch
 
 build:
   number: 0
@@ -32,13 +33,25 @@ requirements:
   host:
     - python
     - pip
-    - setuptools
+    - setuptools >=70.1
     - wheel
+    # liburing/libaio: the core library links the io_uring and libaio engines.
+    - liburing
+    - libaio
+    # cuda-cudart-dev: cuda.h only, the CUDA driver is dlopen'd at runtime.
+    - cuda-cudart-dev
   run:
     - python
     - pytorch >=2.0.0,<3.0.0
     - numpy
     - humanize
+    - liburing
+    - libaio
+  ignore_run_exports:
+    # cuda.h is a compile-time-only dependency: libcuda.so is dlopen'd at
+    # runtime, so neither the CUDA runtime nor the driver is needed to run this.
+    from_package:
+      - cuda-cudart-dev
 
 tests:
   - python:

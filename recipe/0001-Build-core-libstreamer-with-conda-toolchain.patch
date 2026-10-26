@@ -1,12 +1,38 @@
 diff --git a/cpp/WORKSPACE b/cpp/WORKSPACE
+index 7f5d213..04bdfb8 100644
 --- a/cpp/WORKSPACE
 +++ b/cpp/WORKSPACE
-@@ -1,36 +1,7 @@
+@@ -1,57 +1,35 @@
+ # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ # SPDX-License-Identifier: Apache-2.0
+ 
 -load("//toolchain:configure.bzl", "configure_toolchain")
 -configure_toolchain(name = "toolchain")
 -load("//toolchain:deps.bzl", "load_toolchain_deps")
 -load_toolchain_deps()
 -
++# The upstream WORKSPACE registers a devcontainer-specific Bazel crosstool
++# (expecting /usr/bin/<arch>-linux-gnu-gcc) and pulls in pre-built third-party
++# SDKs from /opt and /usr/local/cuda. This recipe builds only the core
++# libstreamer.so against the conda-forge host environment, so:
++#
++#   * the crosstool registration is dropped, which lets Bazel auto-detect the
++#     conda-forge compiler through CC/CXX;
++#   * the object-storage backends (s3/gcs/azure) ship as separate Python wheels
++#     (runai_model_streamer_{s3,gcs,azure}) that dlopen their own .so files, so
++#     neither their local repositories (path "/opt") nor google-cloud-cpp
++#     (loaded from the network, needs the crosstool above) are needed here;
++#   * the cuda/uring/aio headers come from the conda prefix (cuda-cudart-dev,
++#     liburing, libaio) instead of the devcontainer image. build.sh populates
++#     .bazel-deps/<name>/include with symlinks into the prefix, which keeps the
++#     upstream BUILD files referencing these repositories unchanged.
+ new_local_repository(
+     name = "cuda",
+-    path = "/usr/local/cuda",
++    path = ".bazel-deps/cuda",
+     build_file = "//third_party:cuda.BUILD"
+ )
+ 
 -new_local_repository(
 -    name = "aws",
 -    path = "/opt",
@@ -18,6 +44,20 @@ diff --git a/cpp/WORKSPACE b/cpp/WORKSPACE
 -    path = "/opt",
 -    build_file = "//third_party:azure.BUILD"
 -)
+-
+ new_local_repository(
+     name = "uring",
+-    path = "/opt",
++    path = ".bazel-deps/uring",
+     build_file = "//third_party:uring.BUILD"
+ )
+ 
+ new_local_repository(
+     name = "aio",
+-    path = "/opt",
++    path = ".bazel-deps/aio",
+     build_file = "//third_party:aio.BUILD"
+ )
 -
 -load("//third_party:gcp_repo.bzl", "load_gcp_repo")
 -load_gcp_repo()
@@ -38,10 +78,3 @@ diff --git a/cpp/WORKSPACE b/cpp/WORKSPACE
 -gl_cpp_workspace4()
 -load("@google_cloud_cpp//bazel:workspace5.bzl", "gl_cpp_workspace5")
 -gl_cpp_workspace5()
-+# The upstream WORKSPACE configures a devcontainer-specific Bazel crosstool
-+# (expecting /usr/bin/<arch>-linux-gnu-gcc) and pre-built AWS/Azure/GCP SDKs
-+# under /opt. Those are only used by the s3/gcs/azure backends, which ship as
-+# separate Python wheels (runai_model_streamer_{s3,gcs,azure}) that dlopen their
-+# own .so files at runtime. The core libstreamer.so bundled by this wheel has no
-+# third-party C++ dependencies, so we drop all of the above and let Bazel
-+# auto-detect the conda-forge compiler (CC/CXX) instead.
