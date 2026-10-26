@@ -12,7 +12,6 @@ source:
     sha256: 55c64c86df87ebb6891662cb81908e4d055527231cdea9749f120fe29e75ef2e
     patches:
       - 0001-Build-core-libstreamer-with-conda-toolchain.patch
-      - 0002-undef-major-minor-sysmacros.patch
       - 0003-freeres-noop-with-dynamic-libstdcxx.patch
       - 0004-use-conda-forge-liburing-and-libaio.patch
 
