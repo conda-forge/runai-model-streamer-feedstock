@@ -1,7 +1,7 @@
 schema_version: 1
 
 context:
-  version: "0.17.0"
+  version: "0.17.1"
 
 package:
   name: runai-model-streamer
@@ -9,7 +9,7 @@ package:
 
 source:
   - url: https://github.com/run-ai/runai-model-streamer/archive/refs/tags/${{ version }}.tar.gz
-    sha256: 55c64c86df87ebb6891662cb81908e4d055527231cdea9749f120fe29e75ef2e
+    sha256: 174a1cec9e4cc9caddd5cb08611dac077c46744daf2a3a6ca520e29d760cb760
     patches:
       - 0001-Build-core-libstreamer-with-conda-toolchain.patch
       - 0003-freeres-noop-with-dynamic-libstdcxx.patch
